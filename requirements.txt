@@ -1,0 +1,111 @@
+# ── Web Framework ─────────────────────────────────────────────────────────────
+
+# fastapi[standard] → the FastAPI web framework
+#   [standard] installs useful extras automatically:
+#     - uvicorn        → the ASGI server that runs FastAPI
+#     - python-multipart → needed for file uploads and form data
+#     - email-validator  → needed for Pydantic's EmailStr type
+#     - fastapi-cli      → gives you the `fastapi dev` command
+fastapi[standard]
+
+# uvicorn[standard] → the ASGI server (Asynchronous Server Gateway Interface)
+#   This is what actually listens for HTTP requests and passes them to FastAPI.
+#   Run with: uvicorn main:app --reload
+#   [standard] adds:
+#     - uvloop    → faster async event loop (replaces Python's default asyncio loop)
+#     - httptools → faster HTTP parsing
+#     - websockets → WebSocket support
+uvicorn[standard]
+
+
+# ── Database ───────────────────────────────────────────────────────────────────
+
+# sqlalchemy → the ORM (Object Relational Mapper)
+#   Lets you define database tables as Python classes and query them with Python
+#   instead of writing raw SQL.
+#   Used in: app/core/database.py, app/models/user.py, app/models/item.py
+sqlalchemy
+
+# alembic → database migration tool (works with SQLAlchemy)
+#   Tracks changes to your database schema over time, like git for your DB.
+#   When you add a new column or table, you create a migration file.
+#   Run migrations with: alembic upgrade head
+#   Used in: alembic.ini (config file)
+alembic
+
+# psycopg2-binary → PostgreSQL database driver
+#   SQLAlchemy needs a "driver" to talk to each database type.
+#   This one is for PostgreSQL (the recommended production database).
+#   The "-binary" version includes pre-compiled C extensions — no compiler needed.
+#   Not used in local dev (we use SQLite), but needed when you switch to PostgreSQL.
+#   Switch by changing DATABASE_URL in .env to: postgresql+psycopg2://user:pass@host/db
+psycopg2-binary
+
+
+# ── Data Validation ────────────────────────────────────────────────────────────
+
+# pydantic[email] → data validation library
+#   Validates request/response data using Python type hints.
+#   FastAPI is built on top of Pydantic — every request body and response model uses it.
+#   [email] installs the email-validator package which enables the EmailStr type.
+#   Used in: app/schemas/user.py, app/schemas/item.py, app/schemas/auth.py
+pydantic[email]
+
+# pydantic-settings → reads settings from environment variables and .env files
+#   Extends Pydantic's BaseModel with the ability to load values from the environment.
+#   Used in: app/core/config.py (the Settings class)
+pydantic-settings
+
+
+# ── Authentication & Security ──────────────────────────────────────────────────
+
+# python-jose[cryptography] → creates and verifies JWT (JSON Web Tokens)
+#   JWTs are signed strings used to prove a user's identity without storing sessions.
+#   [cryptography] installs the cryptography backend needed for signing tokens.
+#   Used in: app/core/security.py (create_access_token, decode_token)
+python-jose[cryptography]
+
+# bcrypt → password hashing algorithm
+#   Converts plain-text passwords into irreversible hashes for safe storage.
+#   Even if your database is stolen, attackers can't reverse the hashes.
+#   Used in: app/core/security.py (hash_password, verify_password)
+bcrypt
+
+
+# ── File Handling ──────────────────────────────────────────────────────────────
+
+# python-multipart → parses multipart/form-data request bodies
+#   Required for file uploads (UploadFile) and HTML form submissions (Form()).
+#   Without this, FastAPI cannot read file upload requests.
+#   Used in: app/api/v1/endpoints/files.py
+python-multipart
+
+# aiofiles → async file reading and writing
+#   Regular Python open() blocks the event loop (freezes the server while writing).
+#   aiofiles does the same thing but asynchronously, so other requests can run.
+#   Used in: app/api/v1/endpoints/files.py (saving uploaded files to disk)
+aiofiles
+
+
+# ── HTTP Client ────────────────────────────────────────────────────────────────
+
+# httpx → async HTTP client
+#   Used internally by FastAPI's TestClient to make HTTP requests in tests.
+#   Can also be used to call external APIs from your app (e.g. payment gateways).
+#   Used in: tests/test_health.py (via FastAPI's TestClient which wraps httpx)
+httpx
+
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+
+# pytest → the test runner
+#   Discovers and runs test files (files named test_*.py).
+#   Run all tests with: pytest tests/ -v
+#   Used in: tests/test_health.py
+pytest
+
+# pytest-asyncio → lets pytest run async test functions
+#   FastAPI is async, so some tests need to be async def.
+#   Without this plugin, pytest cannot run async test functions.
+#   Used in: tests/ (any test file with async def test_...)
+pytest-asyncio
